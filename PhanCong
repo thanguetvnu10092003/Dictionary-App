@@ -1,0 +1,20 @@
+Class Word (Toản)
+Class Dictionary (Toản)
+
+Class DictionaryCommandline
+showAllWords() (Thắng)
+dictionaryBasic() -> insertFromCommandline() và showAllWords() (Thắng)
+dictionarySearcher()
+dictionaryAdvanced() (Thắng)
+
+
+Class DictionaryManagement
+Toản:
+insertFromCommandline()
+insertFromFile() nhập dữ liệu từ dictionaries.txt
+dictionaryLookup() (Từ ở đầu)
+
+Minh:
+xóa và sửa dữ liệu bằng dòng lệnh
+dictionaryExportToFile()
+
