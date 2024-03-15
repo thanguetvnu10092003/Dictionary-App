@@ -1,24 +1,21 @@
-Class Word (Toản)
-Class Dictionary (Toản)
+Class Word                             //(Toản)
+Class Dictionary                        //(Toản)
 
 Class DictionaryCommandline
-showAllWords() (Thắng)
+showAllWords()                        //(Thắng)
 dictionaryBasic() 
     -> insertFromCommandline()        //From Class DictionaryManagement
     -> showAllWords()                //From Class DictionaryCommandline
 dictionarySearcher()
-dictionaryAdvanced() (Thắng)
+dictionaryAdvanced()                 //(Thắng)
 
 
 Class DictionaryManagement
-Toản:
-insertFromCommandline()
-insertFromFile() nhập dữ liệu từ dictionaries.txt
-dictionaryLookup() (Từ ở đầu)
-
-Minh:
-xóa và sửa dữ liệu bằng dòng lệnh
-dictionaryExportToFile()
+insertFromCommandline()                                        //(Toản)
+insertFromFile() nhập dữ liệu từ dictionaries.txt             //(Thắng)
+dictionaryLookup() (Từ ở đầu)                                //
+xóa và sửa dữ liệu bằng dòng lệnh                            //(Minh)
+dictionaryExportToFile()                                     //(Thắng)
 
 ****NOTE**** 
 Quy định tệp dictionaries.txt: Mỗi dòng chứa từ tiếng anh và giải thích tiếng
