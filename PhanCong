@@ -3,7 +3,9 @@ Class Dictionary (Toản)
 
 Class DictionaryCommandline
 showAllWords() (Thắng)
-dictionaryBasic() -> insertFromCommandline() và showAllWords() (Thắng)
+dictionaryBasic() 
+    -> insertFromCommandline()
+    -> showAllWords() (Thắng)
 dictionarySearcher()
 dictionaryAdvanced() (Thắng)
 
