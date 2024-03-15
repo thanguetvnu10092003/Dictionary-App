@@ -4,8 +4,8 @@ Class Dictionary (Toản)
 Class DictionaryCommandline
 showAllWords() (Thắng)
 dictionaryBasic() 
-    -> insertFromCommandline()
-    -> showAllWords() (Thắng)
+    -> insertFromCommandline()        //From Class DictionaryManagement
+    -> showAllWords()                //From Class DictionaryCommandline
 dictionarySearcher()
 dictionaryAdvanced() (Thắng)
 
@@ -20,3 +20,12 @@ Minh:
 xóa và sửa dữ liệu bằng dòng lệnh
 dictionaryExportToFile()
 
+****NOTE**** 
+Quy định tệp dictionaries.txt: Mỗi dòng chứa từ tiếng anh và giải thích tiếng
+việt (ngăn cách nhau bằng dấu tab).
+VD:
+No | English | Vietnamese
+1 | Hello | Xin chao
+2 | House | Ngoi nha
+3 | Love | Yeu thuong
+...
