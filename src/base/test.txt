@@ -1,9 +1,0 @@
-angry	tức giận
-battery	pin
-change	thay đổi
-dictionary	từ điển
-hello	xin chào
-paper	tờ giấy
-perfume	nước hoa
-table	cái bàn
-wallet	cái ví
