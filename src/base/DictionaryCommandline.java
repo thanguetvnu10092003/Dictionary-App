@@ -12,7 +12,7 @@ public class DictionaryCommandline extends Dictionary{
         }
     }
 
-    public static void dictionaryAdvance() throws IOException {
+    public static void dictionaryAdvance() throws Exception {
         boolean running = true;
         while (running) {
             System.out.println("Welcome to My Application!\n" +
@@ -64,6 +64,7 @@ public class DictionaryCommandline extends Dictionary{
                     Scanner sc5 = new Scanner(System.in);
                     System.out.println("Enter a word you want to know its meaning:");
                     String w = sc5.nextLine().toLowerCase();
+                    Voice.speakWord(w);
                     System.out.println("Traslate to Vietnamese:");
                     String mean = DictionaryManagement.findVietnameseMeaning(w);
                     System.out.println(mean);
