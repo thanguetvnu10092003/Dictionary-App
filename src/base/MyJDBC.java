@@ -1,6 +1,7 @@
 package base;
 
 import java.sql.*;
+import java.util.Collections;
 
 import static base.Dictionary.oldWord;
 
@@ -19,6 +20,7 @@ public class MyJDBC {
                 Word new_word = new Word(resultSet.getString("word"), resultSet.getString("meaning"));
                 oldWord.add(new_word);
             }
+            Collections.sort(oldWord);
             DictionaryManagement.removeDuplicates();
         } catch (SQLException e) {
             e.printStackTrace();
