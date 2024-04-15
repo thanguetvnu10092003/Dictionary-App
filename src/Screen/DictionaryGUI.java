@@ -19,6 +19,16 @@ public class DictionaryGUI extends JFrame {
         setVisible(true);
     }
 
+    public void displayComponent(Word word,JPanel panel,int x){
+        panel.setLayout(null);
+
+        JLabel ENMeaning = new JLabel(word.getSearching());
+        ENMeaning.setFont(new Font("Arial", Font.BOLD, 24));
+        ENMeaning.setBounds(10, 30*x, 200, 30);
+        ENMeaning.setForeground(Color.WHITE);
+        panel.add(ENMeaning);
+    }
+
     private void addGuiComponents() {
         DictionaryManagement.setInputPath("C:\\Users\\Admin\\Desktop\\Dict\\src\\base\\test.txt");
         DictionaryManagement.insertFromFile();
@@ -40,11 +50,10 @@ public class DictionaryGUI extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(new Color(0x4B5081));
+        int i = 0;
         for (Word word : words) {
-            JLabel titleLabel = new JLabel(word.getSearching() + " " + word.getMeaning());
-            titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-//            titleLabel.setForeground(Color.WHITE);
-            panel.add(titleLabel);
+            displayComponent(word, panel,i);
+            i++;
         }
 
         JScrollPane scrollPane = new JScrollPane(panel);
@@ -58,22 +67,22 @@ public class DictionaryGUI extends JFrame {
         // Search bar
         searchBar = new JTextField(20);  // Initially set the columns of the text field
         searchBar.setFont(new Font("Arial", Font.PLAIN, 18));
-        searchBar.setPreferredSize(new Dimension(100, 10));  // Set the preferred size
+        searchBar.setPreferredSize(new Dimension(50, 10));  // Set the preferred size
 
         // Button panel
         buttonPanel = new JPanel();
         buttonPanel.setBackground(new Color(0x4B5081));
 
         // Adding buttons with icons
+        addIconButton("search.png", "Search");
         addIconButton("edit.png", "Edit");
         addIconButton("favourite.png", "Favorite");
         addIconButton("history.png", "History");
         addIconButton("remove.png", "Remove");
         addIconButton("reset.png", "Reset");
         addIconButton("save.png", "Save");
-        addIconButton("search.png", "Search");
+
         addIconButton("setting.png", "Settings");
-        addIconButton("speak.png", "Speak");
 
         // Adding components to the top
         JPanel searchPanel = new JPanel(new BorderLayout());
@@ -83,10 +92,18 @@ public class DictionaryGUI extends JFrame {
     }
 
     private void addIconButton(String iconName, String tooltip) {
-        String imagePath = "C:\\Users\\Admin\\Desktop\\Dict\\resource\\media\\hover\\" + iconName;
+        String imagePath = "C:\\Users\\Admin\\Desktop\\Project\\src\\resource\\media\\resource\\" + iconName;
         ImageIcon icon = new ImageIcon(imagePath);
         JButton button = new JButton(icon);
         button.setToolTipText(tooltip);
         buttonPanel.add(button);
+    }
+
+    public void eventClick(Word word,JPanel panel,int x){
+        JLabel VIMeaning = new JLabel(word.getMeaning());
+        VIMeaning.setFont(new Font("Arial", Font.BOLD, 24));
+        VIMeaning.setBounds(220, 30*x, 200, 30);
+        VIMeaning.setForeground(Color.WHITE);
+        panel.add(VIMeaning);
     }
 }
