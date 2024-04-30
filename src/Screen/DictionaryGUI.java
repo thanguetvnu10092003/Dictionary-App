@@ -1,11 +1,13 @@
 package Screen;
 
-import base.DictionaryManagement;
-import base.Word;
+import base.*;
+import constants.CommonConstants;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class DictionaryGUI extends JFrame {
@@ -17,22 +19,77 @@ public class DictionaryGUI extends JFrame {
         setSize(1200, 800);
         addGuiComponents();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close
+        setResizable(false);
         setVisible(true);
     }
 
     public void displayComponent(Word word,JPanel panel,int x){
         panel.setLayout(null);
 
-        JLabel ENMeaning = new JLabel(word.getSearching());
+        JButton ENMeaning = new JButton(word.getSearching());
         ENMeaning.setFont(new Font("Arial", Font.BOLD, 24));
-        ENMeaning.setBounds(10, 30*x, 200, 30);
-        ENMeaning.setForeground(Color.WHITE);
+        ENMeaning.setBounds(10, 30*x, 250, 30);
+        ENMeaning.setForeground(Color.DARK_GRAY);
+        ENMeaning.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JTextArea vietnameseFrame = new JTextArea();
+                vietnameseFrame.setBackground(CommonConstants.DARK_BLUE);
+                vietnameseFrame.setSize(500,500);
+                vietnameseFrame.setFont(new Font("Arial",Font.BOLD,55));
+                vietnameseFrame.setLineWrap(true);
+                vietnameseFrame.setEditable(false);
+                vietnameseFrame.setWrapStyleWord(true);
+                vietnameseFrame.setBounds(300,0,1000,700);
+                vietnameseFrame.setForeground(Color.cyan);
+
+                ImageIcon icon1 = new ImageIcon("src/resource/media/resource/speak.png");
+                JButton voiceEnglishButton = new JButton(icon1);
+                voiceEnglishButton.setSize(50,50);
+                voiceEnglishButton.setBounds(0,650,50,50);
+                voiceEnglishButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            Voice.speakWord(word.getSearching());
+                        } catch (Exception ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                });
+
+                vietnameseFrame.add(voiceEnglishButton);
+
+                Component[] components = panel.getComponents();
+                for (Component component : components) {
+                    if (component instanceof JTextArea) {
+                        panel.remove(component);
+                    }
+                }
+
+                try {
+                    vietnameseFrame.setText("English to Vietnamese:\n" + "\n" +
+                            word.getSearching() + " = " + API.googleTranslate("en","vi",word.getSearching()));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+                panel.add(vietnameseFrame);
+                panel.revalidate();
+                panel.repaint();
+            }
+        });
         panel.add(ENMeaning);
     }
 
     private void addGuiComponents() {
-        DictionaryManagement.setInputPath("C:\\Users\\Admin\\Desktop\\Dict\\src\\base\\test.txt");
+        // import from text file
+        DictionaryManagement.setInputPath("src/base/test.txt");
         DictionaryManagement.insertFromFile();
+
+        // import from MySQL database
+        //MyJDBC.importDatabase();
+
         ArrayList<Word> words = DictionaryManagement.oldWord;
 
         // Menu
@@ -92,7 +149,7 @@ public class DictionaryGUI extends JFrame {
     }
 
     private void addIconButton(String iconName, String tooltip) {
-        String imagePath = "C:\\Users\\Admin\\Desktop\\Project\\src\\resource\\media\\resource\\" + iconName;
+        String imagePath = "src/resource/media/resource/" + iconName;
         ImageIcon icon = new ImageIcon(imagePath);
         JButton button = new JButton(icon);
         button.setToolTipText(tooltip);
@@ -157,10 +214,10 @@ public class DictionaryGUI extends JFrame {
             String vietnameseMeaning = vietnameseTextField.getText();
             if (!englishWord.isEmpty() && !vietnameseMeaning.isEmpty()) {
                 // Set the input path before adding the word
-                DictionaryManagement.setInputPath("C:\\Users\\Admin\\Desktop\\Project\\src\\base\\test.txt");
+                DictionaryManagement.setInputPath("src/base/default.txt");
                 DictionaryManagement.addWord(englishWord, vietnameseMeaning);
                 // Assuming a method to save directly to the file
-                DictionaryManagement.exportToFile("C:\\Users\\Admin\\Desktop\\Project\\src\\base\\test.txt");
+                DictionaryManagement.exportToFile("src/base/1.txt");
                 JOptionPane.showMessageDialog(editDialog, "Word added successfully!");
             } else {
                 JOptionPane.showMessageDialog(editDialog, "Please fill both fields!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -181,5 +238,9 @@ public class DictionaryGUI extends JFrame {
         VIMeaning.setBounds(220, 30*x, 200, 30);
         VIMeaning.setForeground(Color.WHITE);
         panel.add(VIMeaning);
+    }
+
+    public static void main(String[] args) {
+        new DictionaryGUI().setVisible(true);
     }
 }
