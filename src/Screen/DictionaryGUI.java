@@ -15,7 +15,7 @@ public class DictionaryGUI extends JFrame {
     private JPanel buttonPanel;    // button
     private JPanel wordListPanel;
 
-    private JPanel wordListPanel;
+
 
     public DictionaryGUI() {
         super("Dictionary VI EN");
