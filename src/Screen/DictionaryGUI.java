@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class DictionaryGUI extends JFrame {
     private JTextField searchBar;  // search bar
     private JPanel buttonPanel;    // button
+    private JPanel wordListPanel;
 
     public DictionaryGUI() {
         super("Dictionary VI EN");
@@ -101,6 +102,10 @@ public class DictionaryGUI extends JFrame {
         headerPanel.add(headerLabel);
         this.add(headerPanel, BorderLayout.NORTH);
 
+        wordListPanel = new JPanel();
+        wordListPanel.setLayout(new BoxLayout(wordListPanel, BoxLayout.Y_AXIS));
+        wordListPanel.setBackground(new Color(0x4B5081));
+
         // Searchbar
         setupSearchBar();
 
@@ -121,17 +126,58 @@ public class DictionaryGUI extends JFrame {
         getContentPane().setBackground(new Color(0x4B5081));
     }
 
-    private void setupSearchBar() {
-        // Search bar
-        searchBar = new JTextField(20);  // Initially set the columns of the text field
-        searchBar.setFont(new Font("Arial", Font.PLAIN, 18));
-        searchBar.setPreferredSize(new Dimension(50, 10));  // Set the preferred size
+    private void searchAndUpdateResults(String query) {
+        JPanel resultPanel = new JPanel();
+        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
+        resultPanel.setBackground(new Color(0x4B5081));
+        int count = 0;
 
-        // Button panel
+        if (query.trim().isEmpty()) {
+            // Nếu chuỗi tìm kiếm rỗng, hiển thị tất cả các từ
+            for (Word word : DictionaryManagement.oldWord) {
+                displayComponent(word, resultPanel, count++);
+            }
+        } else {
+            // Tìm kiếm các từ khớp với chuỗi tìm kiếm
+            query = query.trim().toLowerCase();
+            for (Word word : DictionaryManagement.oldWord) {
+                if (word.getSearching().toLowerCase().contains(query)) {
+                    displayComponent(word, resultPanel, count++);
+                }
+            }
+        }
+
+        // Tạo và thiết lập JScrollPane mới chứa resultPanel
+        JScrollPane scrollPane = new JScrollPane(resultPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        // Thay thế panel hiển thị kết quả tìm kiếm cũ
+        if (this.getContentPane().getComponentCount() > 2) {
+            this.getContentPane().remove(2); // Giả sử scrollPane là thành phần thứ 3 trong content pane
+        }
+        this.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        this.getContentPane().revalidate(); // Yêu cầu JFrame validate lại layout sau khi thay đổi
+        this.getContentPane().repaint(); // Yêu cầu JFrame vẽ lại để hiển thị các thay đổi
+    }
+
+
+
+
+    private void setupSearchBar() {
+        searchBar = new JTextField(20);
+        searchBar.setFont(new Font("Arial", Font.PLAIN, 18));
+        searchBar.setPreferredSize(new Dimension(50, 10));
+
         buttonPanel = new JPanel();
         buttonPanel.setBackground(new Color(0x4B5081));
 
-        // Adding buttons with icons
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.add(searchBar, BorderLayout.CENTER);
+        searchPanel.add(buttonPanel, BorderLayout.EAST);
+
+        this.add(searchPanel, BorderLayout.NORTH);
+
+        // Adding icon buttons including the integrated "Search" button
         addIconButton("search.png", "Search");
         addIconButton("edit.png", "Edit");
         addIconButton("favourite.png", "Favorite");
@@ -140,26 +186,33 @@ public class DictionaryGUI extends JFrame {
         addIconButton("reset.png", "Reset");
         addIconButton("save.png", "Save");
         addIconButton("setting.png", "Settings");
-
-        // Adding components to the top
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        searchPanel.add(searchBar, BorderLayout.CENTER);
-        searchPanel.add(buttonPanel, BorderLayout.EAST);
-        this.add(searchPanel, BorderLayout.NORTH);
     }
+
+
+
 
     private void addIconButton(String iconName, String tooltip) {
         String imagePath = "src/resource/media/resource/" + iconName;
         ImageIcon icon = new ImageIcon(imagePath);
         JButton button = new JButton(icon);
         button.setToolTipText(tooltip);
+
         button.addActionListener(e -> {
             if (tooltip.equals("Edit")) {
                 openEditDialog();
             } else if (tooltip.equals("Settings")) {
                 openSettingsDialog();
+            } else if (tooltip.equals("Search")) {
+                // Handling search action
+                String searchQuery = searchBar.getText();
+                if (!searchQuery.isEmpty()) {
+                    searchAndUpdateResults(searchQuery);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please enter a word to search.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
+
         buttonPanel.add(button);
     }
 
@@ -230,7 +283,6 @@ public class DictionaryGUI extends JFrame {
         editDialog.setLocationRelativeTo(this);
         editDialog.setVisible(true);
     }
-
 
     public void eventClick(Word word,JPanel panel,int x){
         JLabel VIMeaning = new JLabel(word.getMeaning());
