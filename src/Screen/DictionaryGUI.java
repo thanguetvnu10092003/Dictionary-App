@@ -15,6 +15,8 @@ public class DictionaryGUI extends JFrame {
     private JPanel buttonPanel;    // button
     private JPanel wordListPanel;
 
+    private JPanel wordListPanel;
+
     public DictionaryGUI() {
         super("Dictionary VI EN");
         setSize(1200, 800);
@@ -22,6 +24,17 @@ public class DictionaryGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close
         setResizable(false);
         setVisible(true);
+    }
+
+    public void updateWordToList(ArrayList<Word> words) {
+        wordListPanel.removeAll();
+        int i = 0;
+        for (Word word : words) {
+            displayComponent(word, wordListPanel, i);
+            i++;
+        }
+        wordListPanel.revalidate();
+        wordListPanel.repaint();
     }
 
     public void displayComponent(Word word,JPanel panel,int x){
@@ -110,16 +123,16 @@ public class DictionaryGUI extends JFrame {
         setupSearchBar();
 
         // In word
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(new Color(0x4B5081));
+        wordListPanel = new JPanel();
+        wordListPanel.setLayout(new BoxLayout(wordListPanel, BoxLayout.Y_AXIS));
+        wordListPanel.setBackground(new Color(0x4B5081));
         int i = 0;
         for (Word word : words) {
-            displayComponent(word, panel,i);
+            displayComponent(word, wordListPanel,i);
             i++;
         }
 
-        JScrollPane scrollPane = new JScrollPane(panel);
+        JScrollPane scrollPane = new JScrollPane(wordListPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         this.add(scrollPane, BorderLayout.CENTER);
 
@@ -272,6 +285,7 @@ public class DictionaryGUI extends JFrame {
                 // Assuming a method to save directly to the file
                 DictionaryManagement.exportToFile("src/base/1.txt");
                 JOptionPane.showMessageDialog(editDialog, "Word added successfully!");
+                updateWordToList(DictionaryManagement.oldWord);
             } else {
                 JOptionPane.showMessageDialog(editDialog, "Please fill both fields!", "Error", JOptionPane.ERROR_MESSAGE);
             }
