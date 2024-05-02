@@ -24,9 +24,4 @@ public class API {
         in.close();
         return response.toString();
     }
-
-    public static void main(String[] args) throws IOException {
-        String text = "simp";
-        System.out.println("Translated text: \n" + googleTranslate("", "vi", text));
-    }
 }

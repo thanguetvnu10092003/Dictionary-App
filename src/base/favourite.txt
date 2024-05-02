@@ -1,0 +1,2 @@
+book	quyển sách
+bathroom	phòng tắm

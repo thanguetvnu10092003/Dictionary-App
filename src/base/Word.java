@@ -41,7 +41,7 @@ public class Word implements Comparable<Word> {
         if (this == o) return true;
         if (!(o instanceof Word)) return false;
         Word word = (Word) o;
-        return Objects.equals(getSearching(), word.getSearching()) && Objects.equals(getMeaning(), word.getMeaning());
+        return Objects.equals(getSearching(), word.getSearching());
     }
 
     @Override

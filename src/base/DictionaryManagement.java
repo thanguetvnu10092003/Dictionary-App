@@ -51,6 +51,7 @@ public class DictionaryManagement extends Dictionary{
             }
         }
         Collections.sort(oldWord);
+        removeDuplicates();
     }
 
     public static void removeDuplicates() {
@@ -111,6 +112,7 @@ public class DictionaryManagement extends Dictionary{
             writer.close();
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -197,6 +199,7 @@ public class DictionaryManagement extends Dictionary{
             oldWord.add(word);
         }
         Collections.sort(oldWord);
+        removeDuplicates();
         updateWordtoFile();
     }
 
@@ -246,14 +249,15 @@ public class DictionaryManagement extends Dictionary{
     }
 
     /**
-     * show word's meaning
+     * show word's meaning, using API.
      */
-    public static String findVietnameseMeaning(String word) {
+    public static String findVietnameseMeaning(String word) throws IOException {
         int index = Collections.binarySearch(oldWord, new Word(word, null));
         if (index == -1) {
             return "Can't find the word you want to search!";
         }
         else
-            return oldWord.get(index).getMeaning();
+            return API.googleTranslate("", "vi",word);
+
     }
 }

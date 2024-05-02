@@ -7,13 +7,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
+
+import java.io.*;
+
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class DictionaryGUI extends JFrame {
     private JTextField searchBar;  // search bar
     private JPanel buttonPanel;    // button
+
     private JPanel wordListPanel;
+    private ArrayList<Word> favoriteWords;
+    private static final double MAX_HISTORY_SIZE = 1000;
+    private static final String FAVOURITE_FILE = "src/base/favourite.txt";
+    private ArrayList<Word> historyWords = new ArrayList<>();
 
 
 
@@ -24,7 +34,11 @@ public class DictionaryGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close
         setResizable(false);
         setVisible(true);
+        favoriteWords = new ArrayList<>();
+        updateWordToList(DictionaryManagement.oldWord);
+        readFavoriteWordsFromFile();
     }
+
 
     public void updateWordToList(ArrayList<Word> words) {
         wordListPanel.removeAll();
@@ -36,13 +50,13 @@ public class DictionaryGUI extends JFrame {
         wordListPanel.revalidate();
         wordListPanel.repaint();
     }
-
+    
     public void displayComponent(Word word,JPanel panel,int x){
         panel.setLayout(null);
 
         JButton ENMeaning = new JButton(word.getSearching());
         ENMeaning.setFont(new Font("Arial", Font.BOLD, 24));
-        ENMeaning.setBounds(10, 30*x, 250, 30);
+        ENMeaning.setBounds(10, 30 * x, 250, 30);
         ENMeaning.setForeground(Color.DARK_GRAY);
         ENMeaning.addActionListener(new ActionListener() {
             @Override
@@ -54,8 +68,8 @@ public class DictionaryGUI extends JFrame {
                 vietnameseFrame.setLineWrap(true);
                 vietnameseFrame.setEditable(false);
                 vietnameseFrame.setWrapStyleWord(true);
-                vietnameseFrame.setBounds(300,0,1000,700);
-                vietnameseFrame.setForeground(Color.cyan);
+                vietnameseFrame.setBounds(300,0,1000,3000);
+                vietnameseFrame.setForeground(Color.pink);
 
                 ImageIcon icon1 = new ImageIcon("src/resource/media/resource/speak.png");
                 JButton voiceEnglishButton = new JButton(icon1);
@@ -72,6 +86,18 @@ public class DictionaryGUI extends JFrame {
                     }
                 });
 
+                ImageIcon icon2 = new ImageIcon("src/resource/media/resource/favourite.png");
+                JButton favouriteButton = new JButton(icon2);
+                favouriteButton.setSize(50,50);
+                favouriteButton.setBounds(0, 500,50,50);
+                favouriteButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ENMeaning.setForeground(Color.red);
+                        toggleFavoriteWord(word,ENMeaning);
+                    }
+                });
+                vietnameseFrame.add(favouriteButton);
                 vietnameseFrame.add(voiceEnglishButton);
 
                 Component[] components = panel.getComponents();
@@ -82,7 +108,11 @@ public class DictionaryGUI extends JFrame {
                 }
 
                 try {
-                    vietnameseFrame.setText("English to Vietnamese:\n" + "\n" +
+                    vietnameseFrame.setText("\n" +
+                            "\n" +
+                            "\n" +
+                            "\n" +
+                            "English to Vietnamese:\n" + "\n" +
                             word.getSearching() + " = " + API.googleTranslate("en","vi",word.getSearching()));
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
@@ -91,6 +121,16 @@ public class DictionaryGUI extends JFrame {
                 panel.add(vietnameseFrame);
                 panel.revalidate();
                 panel.repaint();
+
+
+                // Thêm từ vào lịch sử
+                historyWords.add(word);
+                // Giới hạn số lượng từ trong lịch sử
+
+                if (historyWords.size() > MAX_HISTORY_SIZE) {
+                    historyWords.remove(0); // Loại bỏ từ cũ nhất
+                }
+                removeDuplicatesHistoryWords();
             }
         });
         panel.add(ENMeaning);
@@ -108,24 +148,26 @@ public class DictionaryGUI extends JFrame {
 
         // Menu
         JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(new Color(0x859BF5));
+        headerPanel.setBackground(Color.cyan);
         headerPanel.setPreferredSize(new Dimension(1200, 50));
         JLabel headerLabel = new JLabel("Menu");
         headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
         headerPanel.add(headerLabel);
         this.add(headerPanel, BorderLayout.NORTH);
 
-        wordListPanel = new JPanel();
-        wordListPanel.setLayout(new BoxLayout(wordListPanel, BoxLayout.Y_AXIS));
-        wordListPanel.setBackground(new Color(0x4B5081));
-
         // Searchbar
         setupSearchBar();
 
         // In word
-        wordListPanel = new JPanel();
+        wordListPanel = new JPanel() {
+            @Override
+            public Dimension getPreferredSize() {
+                int height = super.getComponentCount() * 30; // Assuming each word has a height of 30 pixels
+                return new Dimension(1000,height);
+            }
+        };
         wordListPanel.setLayout(new BoxLayout(wordListPanel, BoxLayout.Y_AXIS));
-        wordListPanel.setBackground(new Color(0x4B5081));
+        wordListPanel.setBackground(Color.cyan);
         int i = 0;
         for (Word word : words) {
             displayComponent(word, wordListPanel,i);
@@ -133,99 +175,75 @@ public class DictionaryGUI extends JFrame {
         }
 
         JScrollPane scrollPane = new JScrollPane(wordListPanel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         this.add(scrollPane, BorderLayout.CENTER);
 
-        getContentPane().setBackground(new Color(0x4B5081));
+        getContentPane().setBackground(Color.cyan);
     }
-
-    private void searchAndUpdateResults(String query) {
-        JPanel resultPanel = new JPanel();
-        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
-        resultPanel.setBackground(new Color(0x4B5081));
-        int count = 0;
-
-        if (query.trim().isEmpty()) {
-            // Nếu chuỗi tìm kiếm rỗng, hiển thị tất cả các từ
-            for (Word word : DictionaryManagement.oldWord) {
-                displayComponent(word, resultPanel, count++);
-            }
-        } else {
-            // Tìm kiếm các từ khớp với chuỗi tìm kiếm
-            query = query.trim().toLowerCase();
-            for (Word word : DictionaryManagement.oldWord) {
-                if (word.getSearching().toLowerCase().contains(query)) {
-                    displayComponent(word, resultPanel, count++);
-                }
-            }
-        }
-
-        // Tạo và thiết lập JScrollPane mới chứa resultPanel
-        JScrollPane scrollPane = new JScrollPane(resultPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-        // Thay thế panel hiển thị kết quả tìm kiếm cũ
-        if (this.getContentPane().getComponentCount() > 2) {
-            this.getContentPane().remove(2); // Giả sử scrollPane là thành phần thứ 3 trong content pane
-        }
-        this.getContentPane().add(scrollPane, BorderLayout.CENTER);
-        this.getContentPane().revalidate(); // Yêu cầu JFrame validate lại layout sau khi thay đổi
-        this.getContentPane().repaint(); // Yêu cầu JFrame vẽ lại để hiển thị các thay đổi
-    }
-
-
-
 
     private void setupSearchBar() {
-        searchBar = new JTextField(20);
+        // Search bar
+        searchBar = new JTextField(20);  // Initially set the columns of the text field
         searchBar.setFont(new Font("Arial", Font.PLAIN, 18));
-        searchBar.setPreferredSize(new Dimension(50, 10));
+        searchBar.setPreferredSize(new Dimension(50, 10));  // Set the preferred size
 
+        // Button panel
         buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(0x4B5081));
+        buttonPanel.setBackground(Color.cyan);
 
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        searchPanel.add(searchBar, BorderLayout.CENTER);
-        searchPanel.add(buttonPanel, BorderLayout.EAST);
-
-        this.add(searchPanel, BorderLayout.NORTH);
-
-        // Adding icon buttons including the integrated "Search" button
+        // Adding buttons with icons
         addIconButton("search.png", "Search");
         addIconButton("edit.png", "Edit");
-        addIconButton("favourite.png", "Favorite");
+        addIconButton("game.jpg", "Game");
         addIconButton("history.png", "History");
         addIconButton("remove.png", "Remove");
         addIconButton("reset.png", "Reset");
         addIconButton("save.png", "Save");
         addIconButton("setting.png", "Settings");
+
+        // Adding components to the top
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.add(searchBar, BorderLayout.CENTER);
+        searchPanel.add(buttonPanel, BorderLayout.EAST);
+        this.add(searchPanel, BorderLayout.NORTH);
     }
-
-
-
 
     private void addIconButton(String iconName, String tooltip) {
         String imagePath = "src/resource/media/resource/" + iconName;
         ImageIcon icon = new ImageIcon(imagePath);
         JButton button = new JButton(icon);
         button.setToolTipText(tooltip);
-
         button.addActionListener(e -> {
-            if (tooltip.equals("Edit")) {
-                openEditDialog();
-            } else if (tooltip.equals("Settings")) {
-                openSettingsDialog();
-            } else if (tooltip.equals("Search")) {
-                // Handling search action
-                String searchQuery = searchBar.getText();
-                if (!searchQuery.isEmpty()) {
-                    searchAndUpdateResults(searchQuery);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Please enter a word to search.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+            switch (tooltip) {
+                case "Edit":
+                    openEditDialog();
+                    break;
+                case "Settings":
+                    openSettingsDialog();
+                    break;
+                case "Game":
+                    Game.play();
+                    break;
+                case "Search":
+                    // Handling search action
+                    String searchQuery = searchBar.getText();
+                    if (!searchQuery.isEmpty()) {
+                        searchAndUpdateResults(searchQuery);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Please enter a word to search.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    break;
+                case "History":
+                    if (historyWords.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "There is no previous words.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else
+                        displayHistoryWords();
+                    break;
+                case "Reset":
+                    break;
             }
         });
-
         buttonPanel.add(button);
     }
 
@@ -298,15 +316,140 @@ public class DictionaryGUI extends JFrame {
         editDialog.setVisible(true);
     }
 
-    public void eventClick(Word word,JPanel panel,int x){
-        JLabel VIMeaning = new JLabel(word.getMeaning());
-        VIMeaning.setFont(new Font("Arial", Font.BOLD, 24));
-        VIMeaning.setBounds(220, 30*x, 200, 30);
-        VIMeaning.setForeground(Color.WHITE);
-        panel.add(VIMeaning);
+    private void searchAndUpdateResults(String query) {
+        JPanel resultPanel = new JPanel();
+        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
+        resultPanel.setBackground(new Color(0x4B5081));
+        int count = 0;
+
+        if (query.trim().isEmpty()) {
+            // Nếu chuỗi tìm kiếm rỗng, hiển thị tất cả các từ
+            for (Word word : DictionaryManagement.oldWord) {
+                displayComponent(word, resultPanel, count++);
+            }
+        } else {
+            // Tìm kiếm các từ khớp với chuỗi tìm kiếm
+            query = query.trim().toLowerCase();
+            for (Word word : DictionaryManagement.oldWord) {
+                if (word.getSearching().toLowerCase().contains(query)) {
+                    displayComponent(word, resultPanel, count++);
+                }
+            }
+        }
+
+        // Tạo và thiết lập JScrollPane mới chứa resultPanel
+        JScrollPane scrollPane = new JScrollPane(resultPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        // Thay thế panel hiển thị kết quả tìm kiếm cũ
+        if (this.getContentPane().getComponentCount() > 2) {
+            this.getContentPane().remove(2); // Giả sử scrollPane là thành phần thứ 3 trong content pane
+        }
+        this.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        this.getContentPane().revalidate(); // Yêu cầu JFrame validate lại layout sau khi thay đổi
+        this.getContentPane().repaint(); // Yêu cầu JFrame vẽ lại để hiển thị các thay đổi
     }
 
-    public static void main(String[] args) {
-        new DictionaryGUI().setVisible(true);
+    private void readFavoriteWordsFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FAVOURITE_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Tách từ và loại đánh dấu từ dòng đọc được từ tệp tin
+                String[] parts = line.split("\t");
+                if (parts.length >= 2) { // Kiểm tra xem dòng có ít nhất 2 phần tử không trước khi tiếp tục
+                    String searching = parts[0];
+                    boolean isFavorite = Boolean.parseBoolean(parts[1]);
+
+                    // Tìm từ trong danh sách và đánh dấu màu nền tương ứng
+                    for (Component comp : wordListPanel.getComponents()) {
+                        if (comp instanceof JButton) {
+                            JButton button = (JButton) comp;
+                            if (button.getText().equals(searching)) {
+                                if (isFavorite) {
+                                    button.setBackground(CommonConstants.BRIGHT_YELLOW);
+                                    button.setForeground(Color.red);
+                                    favoriteWords.add(new Word(searching, "")); // Thêm từ vào danh sách yêu thích
+                                } else {
+                                    button.setBackground(null); // Đặt màu nền về mặc định nếu không phải từ yêu thích
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
+
+
+    private void writeFavoriteWordsToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FAVOURITE_FILE))) {
+            for (Word word : favoriteWords) {
+                // Ghi từ và loại đánh dấu vào tệp tin
+                writer.write(word.getSearching() + "\t" + word.getMeaning());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isFavoriteWord(Word word) {
+        return favoriteWords.contains(word);
+    }
+
+    private void toggleFavoriteWord(Word word, JButton button) {
+        // Thêm hoặc xóa từ khỏi danh sách yêu thích
+        if (isFavoriteWord(word)) {
+            favoriteWords.remove(word);
+            button.setBackground(null); // Đặt màu nền về mặc định
+        } else {
+            favoriteWords.add(word);
+            button.setBackground(CommonConstants.BRIGHT_YELLOW);
+        }
+        // Ghi danh sách từ yêu thích vào tệp tin
+        writeFavoriteWordsToFile();
+    }
+
+    private void displayHistoryWords() {
+        JPanel historyPanel = new JPanel();
+        historyPanel.setLayout(new BoxLayout(historyPanel, BoxLayout.Y_AXIS));
+        historyPanel.setBackground(Color.cyan);
+
+        int x = 0;
+        for (Word word : historyWords) {
+            displayComponent(word, historyPanel, x); // Hiển thị từng từ trong lịch sử
+            x++;
+        }
+
+        JScrollPane scrollPane = new JScrollPane(historyPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        if (this.getContentPane().getComponentCount() > 2) {
+            this.getContentPane().remove(2); // Loại bỏ panel hiện tại nếu có
+        }
+        this.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        this.getContentPane().revalidate();
+        this.getContentPane().repaint();
+        removeDuplicatesHistoryWords();
+    }
+
+    private void removeDuplicatesHistoryWords() {
+        Set<Word> uniqueWord = new HashSet<>();
+        List<Word> nonDuplicatesWord = new ArrayList<>();
+
+        for (Word w : historyWords) {
+            if (!uniqueWord.contains(w)) {
+                uniqueWord.add(w);
+                nonDuplicatesWord.add(w);
+            }
+        }
+
+        historyWords.clear();
+        historyWords.addAll(nonDuplicatesWord);
+    }
+
 }
