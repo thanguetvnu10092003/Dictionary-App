@@ -198,7 +198,7 @@ public class DictionaryGUI extends JFrame {
         addIconButton("game.jpg", "Game");
         addIconButton("history.png", "History");
         addIconButton("remove.png", "Remove");
-        addIconButton("reset.png", "Reset");
+        addIconButton("home.png", "Home");
         addIconButton("save.png", "Save");
         addIconButton("setting.png", "Settings");
 
@@ -240,13 +240,74 @@ public class DictionaryGUI extends JFrame {
                     } else
                         displayHistoryWords();
                     break;
-                case "Reset":
+                case "Home":
+                    resetState();
+                    break;
+                case "Remove":
+                    openRemoveDialog();
                     break;
             }
         });
         buttonPanel.add(button);
     }
 
+    private void resetState() {
+        searchBar.setText(""); // Clear the search bar
+
+        // Revalidate and repaint the frame to reflect changes
+        this.getContentPane().revalidate();
+        this.getContentPane().repaint();
+    }
+
+    private void openRemoveDialog() {
+        JDialog removeDialog = new JDialog(this, "Remove Word", true);
+        removeDialog.setLayout(new GridLayout(2, 1));  // Grid layout for labels, text fields, and buttons
+        removeDialog.setSize(400, 150);
+
+        // Label and text field for input
+        JLabel wordLabel = new JLabel("Enter word to remove:");
+        JTextField wordTextField = new JTextField();
+
+        // Buttons for removing or cancelling
+        JButton removeButton = new JButton("Remove");
+        JButton cancelButton = new JButton("Cancel");
+
+        // Adding components to the dialog
+        removeDialog.add(wordLabel);
+        removeDialog.add(wordTextField);
+        removeDialog.add(removeButton);
+        removeDialog.add(cancelButton);
+
+        // Remove button
+        removeButton.addActionListener(e -> {
+            String wordToRemove = wordTextField.getText();
+            boolean wordExists = false;
+            for (Word word : DictionaryManagement.oldWord) {
+                if (word.getSearching().equalsIgnoreCase(wordToRemove)) {
+                    wordExists = true;
+                    break;
+                }
+            }
+            if (wordExists) {
+                int response = JOptionPane.showConfirmDialog(removeDialog,
+                        "Do you really want to remove the word: " + wordToRemove + "?", "Confirm Remove", JOptionPane.YES_NO_OPTION);
+                if (response == JOptionPane.YES_OPTION) {
+                    DictionaryManagement.oldWord.removeIf(word -> word.getSearching().equalsIgnoreCase(wordToRemove));
+                    JOptionPane.showMessageDialog(removeDialog, "Word removed successfully!");
+                    updateWordToList(DictionaryManagement.oldWord);
+                }
+            } else {
+                JOptionPane.showMessageDialog(removeDialog, "Word not found!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // Cancel button
+        cancelButton.addActionListener(e -> removeDialog.dispose());
+
+        //Location window
+        removeDialog.setLocationRelativeTo(this);
+        removeDialog.setVisible(true);
+    }
 
 
     private void openSettingsDialog() {
