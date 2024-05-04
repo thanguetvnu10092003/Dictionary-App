@@ -1,2 +1,3 @@
-book	quyển sách
-bathroom	phòng tắm
+comprehension	sự nhận thức
+crayon	bút sáp màu
+change	thay đổi

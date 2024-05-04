@@ -50,7 +50,7 @@ public class DictionaryGUI extends JFrame {
         wordListPanel.revalidate();
         wordListPanel.repaint();
     }
-    
+
     public void displayComponent(Word word,JPanel panel,int x){
         panel.setLayout(null);
 
@@ -199,7 +199,7 @@ public class DictionaryGUI extends JFrame {
         addIconButton("history.png", "History");
         addIconButton("remove.png", "Remove");
         addIconButton("home.png", "Home");
-        addIconButton("save.png", "Save");
+        addIconButton("save.png", "Save as");
         addIconButton("setting.png", "Settings");
 
         // Adding components to the top
@@ -245,6 +245,27 @@ public class DictionaryGUI extends JFrame {
                     break;
                 case "Remove":
                     openRemoveDialog();
+                    break;
+                case "Save as":
+                    JFileChooser fileChooser = new JFileChooser();
+                    int returnValue = fileChooser.showOpenDialog(this);
+
+                    if (returnValue == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = fileChooser.getSelectedFile();
+                        String fileName = selectedFile.getName();
+
+                        if (fileName.isEmpty()) {
+                            JOptionPane.showConfirmDialog(this, "Please enter a file name.", "Error", JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+
+                        if (!fileName.endsWith(".txt")) {
+                            selectedFile = new File(selectedFile.getAbsolutePath() + ".txt");
+                        }
+
+                        saveToFile(DictionaryManagement.oldWord, selectedFile.getAbsolutePath());
+                        JOptionPane.showMessageDialog(null, "Export successful text file.");
+                    }
                     break;
             }
         });
@@ -513,4 +534,18 @@ public class DictionaryGUI extends JFrame {
         historyWords.addAll(nonDuplicatesWord);
     }
 
+    public static void saveToFile(ArrayList<Word> words, String directoryPath) {
+
+        // Tạo một tệp mới trong thư mục đã chỉ định với tên tệp là fileName và đuôi là .txt
+        File file = new File(directoryPath);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (Word word : words) {
+                writer.write(word.getSearching() + "\t" + word.getMeaning());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
