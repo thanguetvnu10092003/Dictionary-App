@@ -26,7 +26,6 @@ public class DictionaryGUI extends JFrame {
     private ArrayList<Word> historyWords = new ArrayList<>();
 
 
-
     public DictionaryGUI() {
         super("Dictionary VI EN");
         setSize(1200, 800);
@@ -142,7 +141,7 @@ public class DictionaryGUI extends JFrame {
         DictionaryManagement.insertFromFile();
 
         // import from MySQL database
-        //MyJDBC.importDatabase();
+        MyJDBC.importDatabase();
 
         ArrayList<Word> words = DictionaryManagement.oldWord;
 
@@ -200,7 +199,7 @@ public class DictionaryGUI extends JFrame {
         addIconButton("remove.png", "Remove");
         addIconButton("home.png", "Home");
         addIconButton("save.png", "Save as");
-        addIconButton("setting.png", "Settings");
+        addIconButton("import.png", "Import file text");
 
         // Adding components to the top
         JPanel searchPanel = new JPanel(new BorderLayout());
@@ -219,8 +218,8 @@ public class DictionaryGUI extends JFrame {
                 case "Edit":
                     openEditDialog();
                     break;
-                case "Settings":
-                    openSettingsDialog();
+                case "Import file text":
+                    openFileChooseDialog();
                     break;
                 case "Game":
                     Game.play();
@@ -275,9 +274,10 @@ public class DictionaryGUI extends JFrame {
     private void resetState() {
         searchBar.setText(""); // Clear the search bar
 
+        ArrayList<Word> allWords = DictionaryManagement.oldWord;
+        updateWordToList(allWords);
         // Revalidate and repaint the frame to reflect changes
-        this.getContentPane().revalidate();
-        this.getContentPane().repaint();
+
     }
 
     private void openRemoveDialog() {
@@ -316,6 +316,7 @@ public class DictionaryGUI extends JFrame {
                     DictionaryManagement.oldWord.removeIf(word -> word.getSearching().equalsIgnoreCase(wordToRemove));
                     JOptionPane.showMessageDialog(removeDialog, "Word removed successfully!");
                     updateWordToList(DictionaryManagement.oldWord);
+                    MyJDBC.removeWordFromDatabase(wordToRemove);
                 }
             } else {
                 JOptionPane.showMessageDialog(removeDialog, "Word not found!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -331,25 +332,6 @@ public class DictionaryGUI extends JFrame {
     }
 
 
-    private void openSettingsDialog() {
-        JDialog settingsDialog = new JDialog(this, "Settings", true);
-        settingsDialog.setSize(300, 200);
-        settingsDialog.setLayout(new GridLayout(2, 5)); // Grid layout with 2 rows and 5 columns
-
-        ActionListener buttonListener = e -> {
-            JButton clickedButton = (JButton) e.getSource();
-            System.out.println("Button clicked: " + clickedButton.getText());
-        };
-
-        for (int i = 0; i < 10; i++) {
-            JButton button = new JButton(Integer.toString(i));
-            button.addActionListener(buttonListener);
-            settingsDialog.add(button);
-        }
-
-        settingsDialog.setLocationRelativeTo(this); // Center the dialog relative to the main frame
-        settingsDialog.setVisible(true);
-    }
 
     private void openEditDialog() {
         JDialog editDialog = new JDialog(this, "Add New Word", true);
@@ -386,6 +368,7 @@ public class DictionaryGUI extends JFrame {
                 DictionaryManagement.exportToFile("src/base/1.txt");
                 JOptionPane.showMessageDialog(editDialog, "Word added successfully!");
                 updateWordToList(DictionaryManagement.oldWord);
+                MyJDBC.insertWordToDatabase(englishWord, vietnameseMeaning);
             } else {
                 JOptionPane.showMessageDialog(editDialog, "Please fill both fields!", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -401,7 +384,7 @@ public class DictionaryGUI extends JFrame {
     private void searchAndUpdateResults(String query) {
         JPanel resultPanel = new JPanel();
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
-        resultPanel.setBackground(new Color(0x4B5081));
+        resultPanel.setBackground(Color.cyan);
         int count = 0;
 
         if (query.trim().isEmpty()) {
@@ -548,4 +531,38 @@ public class DictionaryGUI extends JFrame {
             e.printStackTrace();
         }
     }
+
+    public void importFromFile(String filePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Tách từ và nghĩa từ dòng đọc được từ tệp tin
+                String[] parts = line.split("\t");
+                if (parts.length >= 2) { // Kiểm tra xem dòng có ít nhất 2 phần tử không trước khi tiếp tục
+                    String searching = parts[0];
+                    String meaning = parts[1];
+
+                    // Tạo một đối tượng Word mới và thêm vào danh sách từ điển
+                    Word word = new Word(searching, meaning);
+                    DictionaryManagement.oldWord.add(word);
+                }
+            }
+
+            // Cập nhật giao diện người dùng để hiển thị danh sách từ điển mới
+            updateWordToList(DictionaryManagement.oldWord);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void openFileChooseDialog() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(this);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            importFromFile(selectedFile.getAbsolutePath());
+        }
+    }
+
 }
