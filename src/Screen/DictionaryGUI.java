@@ -200,7 +200,7 @@ public class DictionaryGUI extends JFrame {
         buttonPanel.setBackground(Color.cyan);
         addIconButton("search.png", "Search");
         addIconButton("edit.png", "Edit");
-        addIconButton("game.jpg", "Game");
+        addIconButton("game.png", "Game");
         addIconButton("history.png", "History");
         addIconButton("remove.png", "Remove");
         addIconButton("translate.png", "Translate");
@@ -240,6 +240,9 @@ public class DictionaryGUI extends JFrame {
                     } else {
                         JOptionPane.showMessageDialog(null, "Please enter a word to search.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
+                    break;
+                case "Translate":
+                    openTranslateDialog();
                     break;
                 case "History":
                     if (historyWords.isEmpty()) {
@@ -404,6 +407,77 @@ public class DictionaryGUI extends JFrame {
         editDialog.setLocationRelativeTo(this);
         editDialog.setVisible(true);
     }
+
+    private void openTranslateDialog() {
+        JDialog translateDialog = new JDialog(this, "Translate", true);
+        translateDialog.setLayout(new GridBagLayout());
+        translateDialog.setSize(900, 500);
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        // Panel for source text
+        JPanel sourcePanel = new JPanel(new BorderLayout());
+        JLabel sourceLabel = new JLabel("English", JLabel.CENTER);
+        JTextArea sourceTextArea = new JTextArea();
+        sourceTextArea.setLineWrap(true);
+        sourceTextArea.setWrapStyleWord(true);
+        sourceTextArea.setFont(new Font("Arial", Font.PLAIN, 32)); // Set font here
+        sourcePanel.add(sourceLabel, BorderLayout.NORTH);
+        sourcePanel.add(new JScrollPane(sourceTextArea), BorderLayout.CENTER);
+
+        // Panel for output text
+        JPanel outputPanel = new JPanel(new BorderLayout());
+        JLabel outputLabel = new JLabel("Vietnamese", JLabel.CENTER);
+        JTextArea outputTextArea = new JTextArea();
+        outputTextArea.setLineWrap(true);
+        outputTextArea.setWrapStyleWord(true);
+        outputTextArea.setEditable(false);
+        outputTextArea.setBackground(Color.LIGHT_GRAY);
+        outputTextArea.setFont(new Font("Arial", Font.PLAIN, 32)); // Font for output area, optionally smaller
+        outputPanel.add(outputLabel, BorderLayout.NORTH);
+        outputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
+
+        // Swap button in the center
+        JButton swapButton = new JButton(new ImageIcon("src/resource/media/resource/swap.png"));
+        swapButton.addActionListener(e -> {
+            // Swap texts
+            String tempText = sourceTextArea.getText();
+            sourceTextArea.setText(outputTextArea.getText());
+            outputTextArea.setText(tempText);
+
+            // Swap labels
+            String tempLabel = sourceLabel.getText();
+            sourceLabel.setText(outputLabel.getText());
+            outputLabel.setText(tempLabel);
+        });
+
+        // GridBag constraints for source panel
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        translateDialog.add(sourcePanel, gbc);
+
+        // GridBag constraints for swap button
+        gbc.gridx = 1;
+        gbc.weightx = 0.1;  // Give less space to the button
+        gbc.anchor = GridBagConstraints.CENTER; // Center alignment horizontally
+        gbc.insets = new Insets(20, 0, 0, 0);  // Top padding to lower the button
+        translateDialog.add(swapButton, gbc);
+
+        // GridBag constraints for output panel
+        gbc.gridx = 2;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 0, 0, 0);  // Reset insets
+        translateDialog.add(outputPanel, gbc);
+
+        // Setting visibility and location
+        translateDialog.setLocationRelativeTo(this);
+        translateDialog.setVisible(true);
+    }
+
+
+
 
     private void searchAndUpdateResults(String query) {
         JPanel resultPanel = new JPanel();
