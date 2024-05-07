@@ -2,7 +2,7 @@ package Screen;
 
 import base.*;
 import constants.CommonConstants;
-
+import java.util.concurrent.*;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -26,6 +26,11 @@ public class DictionaryGUI extends JFrame {
     private static final double MAX_HISTORY_SIZE = 1000;
     private static final String FAVOURITE_FILE = "src/base/favourite.txt";
     private ArrayList<Word> historyWords = new ArrayList<>();
+
+    // Executor service để xử lý gọi API dịch một cách bất đồng bộ
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture<?> scheduledFuture;
 
 
     public DictionaryGUI() {
@@ -199,11 +204,12 @@ public class DictionaryGUI extends JFrame {
         buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.cyan);
         addIconButton("search.png", "Search");
+        addIconButton("add.png", "Add");
         addIconButton("edit.png", "Edit");
-        addIconButton("game.png", "Game");
-        addIconButton("history.png", "History");
         addIconButton("remove.png", "Remove");
         addIconButton("translate.png", "Translate");
+        addIconButton("game.png", "Game");
+        addIconButton("history.png", "History");
         addIconButton("save.png", "Save as");
         addIconButton("import.png", "Import file text");
 
@@ -225,6 +231,9 @@ public class DictionaryGUI extends JFrame {
             switch (tooltip) {
                 case "Edit":
                     openEditDialog();
+                    break;
+                case "Add":
+                    openAddDialog();
                     break;
                 case "Import file text":
                     openFileChooseDialog();
@@ -363,8 +372,78 @@ public class DictionaryGUI extends JFrame {
     }
 
 
-
     private void openEditDialog() {
+        JDialog editDialog = new JDialog(this, "Edit Word", true);
+        editDialog.setLayout(new GridLayout(4, 2));  // Grid layout for labels and text fields
+        editDialog.setSize(400, 250);
+
+        // Labels and text fields for input
+        JLabel wordLabel = new JLabel("Word to edit:");
+        JTextField wordTextField = new JTextField();
+        JLabel englishLabel = new JLabel("New English meaning:");
+        JTextField englishTextField = new JTextField();
+        JLabel vietnameseLabel = new JLabel("New Vietnamese meaning:");
+        JTextField vietnameseTextField = new JTextField();
+
+        // Buttons for submitting or cancelling
+        JButton changeButton = new JButton("Change");
+        JButton cancelButton = new JButton("Cancel");
+
+        // Adding components to the dialog
+        editDialog.add(wordLabel);
+        editDialog.add(wordTextField);
+        editDialog.add(englishLabel);
+        editDialog.add(englishTextField);
+        editDialog.add(vietnameseLabel);
+        editDialog.add(vietnameseTextField);
+        editDialog.add(changeButton);
+        editDialog.add(cancelButton);
+
+        // Action listener for the Change button
+        changeButton.addActionListener(e -> {
+            String originalWord = wordTextField.getText().trim();
+            String newEnglishMeaning = englishTextField.getText().trim();
+            String newVietnameseMeaning = vietnameseTextField.getText().trim();
+
+            if (originalWord.isEmpty() || newEnglishMeaning.isEmpty() || newVietnameseMeaning.isEmpty()) {
+                JOptionPane.showMessageDialog(editDialog, "All fields must be filled!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            boolean wordFound = false;
+            boolean duplicateFound = false;
+            for (Word word : DictionaryManagement.oldWord) {
+                if (word.getSearching().equalsIgnoreCase(originalWord)) {
+                    wordFound = true;
+                }
+                if (word.getSearching().equalsIgnoreCase(newEnglishMeaning) && !word.getSearching().equalsIgnoreCase(originalWord)) {
+                    duplicateFound = true;
+                }
+            }
+
+            if (!wordFound) {
+                JOptionPane.showMessageDialog(editDialog, "Word not found!", "Error", JOptionPane.ERROR_MESSAGE);
+            } else if (duplicateFound) {
+                JOptionPane.showMessageDialog(editDialog, "Another word with the same English meaning already exists in the dictionary!", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                int response = JOptionPane.showConfirmDialog(editDialog,
+                        "Are you sure you want to change the word: " + originalWord + " to:\nEnglish: " + newEnglishMeaning + "\nVietnamese: " + newVietnameseMeaning + "?",
+                        "Confirm Edit", JOptionPane.YES_NO_OPTION);
+                if (response == JOptionPane.YES_OPTION) {
+                    JOptionPane.showMessageDialog(editDialog, "Word updated successfully!");
+                }
+            }
+        });
+
+        // Action listener for the Cancel button
+        cancelButton.addActionListener(e -> editDialog.dispose());
+
+        editDialog.setLocationRelativeTo(this);
+        editDialog.setVisible(true);
+    }
+
+
+    private void openAddDialog() {
         JDialog editDialog = new JDialog(this, "Add New Word", true);
         editDialog.setLayout(new GridLayout(3, 2));  // Grid layout for labels and text fields
         editDialog.setSize(400, 200);
@@ -415,13 +494,11 @@ public class DictionaryGUI extends JFrame {
     private void openTranslateDialog() throws IOException {
         Image image = new ImageIcon("src/resource/media/normal/eng-viet.png").getImage();
 
-
         JDialog translateDialog = new JDialog(this, "Translate", true);
         translateDialog.setLayout(new GridBagLayout());
         translateDialog.setSize(900, 500);
         translateDialog.setIconImage(image);
         GridBagConstraints gbc = new GridBagConstraints();
-
 
         // Panel for output text
         JPanel outputPanel = new JPanel(new BorderLayout());
@@ -431,11 +508,9 @@ public class DictionaryGUI extends JFrame {
         outputTextArea.setWrapStyleWord(true);
         outputTextArea.setEditable(false);
         outputTextArea.setBackground(Color.LIGHT_GRAY);
-        outputTextArea.setFont(new Font("Arial", Font.PLAIN, 32)); // Font for output area, optionally smaller
+        outputTextArea.setFont(new Font("Arial", Font.PLAIN, 32));
         outputPanel.add(outputLabel, BorderLayout.NORTH);
         outputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
-
-
 
         // Panel for source text
         JPanel sourcePanel = new JPanel(new BorderLayout());
@@ -443,34 +518,20 @@ public class DictionaryGUI extends JFrame {
         JTextArea sourceTextArea = new JTextArea();
         sourceTextArea.setLineWrap(true);
         sourceTextArea.setWrapStyleWord(true);
-        sourceTextArea.setFont(new Font("Arial", Font.PLAIN, 32)); // Set font here
+        sourceTextArea.setFont(new Font("Arial", Font.PLAIN, 32));
         sourceTextArea.addKeyListener(new KeyAdapter() {
-            @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    try {
-                        translateText();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+                if (scheduledFuture != null && !scheduledFuture.isDone()) {
+                    scheduledFuture.cancel(false);  // Hủy yêu cầu trước đó nếu chưa hoàn thành
                 }
-            }
-            private void translateText() throws IOException {
-                // Dịch văn bản mới từ sourceTextArea
-                String translatedText = "";
-                if (Objects.equals(sourceLabel.getText(), "English")) {
-                    translatedText = API.googleTranslate("en", "vi", sourceTextArea.getText());
-                } else if (Objects.equals(sourceLabel.getText(), "Vietnamese")) {
-                    translatedText = API.googleTranslate("vi", "en", sourceTextArea.getText());
-                }
-                // Cập nhật văn bản của outputTextArea với kết quả dịch
-                outputTextArea.setText(translatedText);
+                scheduledFuture = scheduler.schedule(() -> {
+                    // Chạy yêu cầu dịch sau một khoảng trì hoãn
+                    translateText(sourceTextArea, outputTextArea, sourceLabel.getText());
+                }, 500, TimeUnit.MILLISECONDS);  // Đặt trễ 500 ms
             }
         });
-
         sourcePanel.add(sourceLabel, BorderLayout.NORTH);
         sourcePanel.add(new JScrollPane(sourceTextArea), BorderLayout.CENTER);
-
 
         // Swap button in the center
         JButton swapButton = new JButton(new ImageIcon("src/resource/media/resource/swap.png"));
@@ -486,23 +547,6 @@ public class DictionaryGUI extends JFrame {
             outputLabel.setText(tempLabel);
         });
 
-        ImageIcon icon1 = new ImageIcon("src/resource/media/resource/speak.png");
-        JButton voiceEnglishButton = new JButton(icon1);
-        voiceEnglishButton.setSize(50,50);
-        voiceEnglishButton.setBounds(350,390,50,50);
-        voiceEnglishButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    Voice.speakWord(outputTextArea.getText());
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        });
-
-        outputTextArea.add(voiceEnglishButton);
-
         // GridBag constraints for source panel
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -513,20 +557,44 @@ public class DictionaryGUI extends JFrame {
 
         // GridBag constraints for swap button
         gbc.gridx = 1;
-        gbc.weightx = 0.1;  // Give less space to the button
-        gbc.anchor = GridBagConstraints.CENTER; // Center alignment horizontally
-        gbc.insets = new Insets(20, 0, 0, 0);  // Top padding to lower the button
+        gbc.weightx = 0.1;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(20, 0, 0, 0);
         translateDialog.add(swapButton, gbc);
 
         // GridBag constraints for output panel
         gbc.gridx = 2;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(0, 0, 0, 0);  // Reset insets
+        gbc.insets = new Insets(0, 0, 0, 0);
         translateDialog.add(outputPanel, gbc);
 
-        // Setting visibility and location
         translateDialog.setLocationRelativeTo(this);
         translateDialog.setVisible(true);
+    }
+
+    private void translateText(JTextArea sourceTextArea, JTextArea outputTextArea, String languageDirection) {
+        String sourceText = sourceTextArea.getText();
+        // Định nghĩa hàm API.googleTranslate trong luồng khác
+        executor.submit(() -> {
+            String translatedText = "";  // Gọi API dịch ở đây
+            if (languageDirection.equals("English")) {
+                try {
+                    translatedText = API.googleTranslate("en", "vi", sourceText);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (languageDirection.equals("Vietnamese")) {
+                try {
+                    translatedText = API.googleTranslate("vi", "en", sourceText);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            String finalTranslatedText = translatedText;
+            SwingUtilities.invokeLater(() -> {
+                outputTextArea.setText(finalTranslatedText);
+            });
+        });
     }
 
 
