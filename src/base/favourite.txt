@@ -1,2 +1,3 @@
-clarity	sự trong trẻo
-cognition	sự nhận thức
+book	quyển sách
+bathroom	phòng tắm
+bag	bao lô

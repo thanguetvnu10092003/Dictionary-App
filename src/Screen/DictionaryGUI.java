@@ -4,6 +4,8 @@ import base.*;
 import constants.CommonConstants;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -242,7 +244,11 @@ public class DictionaryGUI extends JFrame {
                     }
                     break;
                 case "Translate":
-                    openTranslateDialog();
+                    try {
+                        openTranslateDialog();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     break;
                 case "History":
                     if (historyWords.isEmpty()) {
@@ -408,21 +414,15 @@ public class DictionaryGUI extends JFrame {
         editDialog.setVisible(true);
     }
 
-    private void openTranslateDialog() {
+    private void openTranslateDialog() throws IOException {
+        Image image = new ImageIcon("src/resource/media/normal/eng-viet.png").getImage();
+
+
         JDialog translateDialog = new JDialog(this, "Translate", true);
         translateDialog.setLayout(new GridBagLayout());
         translateDialog.setSize(900, 500);
+        translateDialog.setIconImage(image);
         GridBagConstraints gbc = new GridBagConstraints();
-
-        // Panel for source text
-        JPanel sourcePanel = new JPanel(new BorderLayout());
-        JLabel sourceLabel = new JLabel("English", JLabel.CENTER);
-        JTextArea sourceTextArea = new JTextArea();
-        sourceTextArea.setLineWrap(true);
-        sourceTextArea.setWrapStyleWord(true);
-        sourceTextArea.setFont(new Font("Arial", Font.PLAIN, 32)); // Set font here
-        sourcePanel.add(sourceLabel, BorderLayout.NORTH);
-        sourcePanel.add(new JScrollPane(sourceTextArea), BorderLayout.CENTER);
 
         // Panel for output text
         JPanel outputPanel = new JPanel(new BorderLayout());
@@ -435,6 +435,54 @@ public class DictionaryGUI extends JFrame {
         outputTextArea.setFont(new Font("Arial", Font.PLAIN, 32)); // Font for output area, optionally smaller
         outputPanel.add(outputLabel, BorderLayout.NORTH);
         outputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
+
+        // Panel for source text
+        JPanel sourcePanel = new JPanel(new BorderLayout());
+        JLabel sourceLabel = new JLabel("English", JLabel.CENTER);
+        JTextArea sourceTextArea = new JTextArea();
+        sourceTextArea.setLineWrap(true);
+        sourceTextArea.setWrapStyleWord(true);
+        sourceTextArea.setFont(new Font("Arial", Font.PLAIN, 32)); // Set font here
+        sourceTextArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                try {
+                    translateText();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                try {
+                    translateText();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+
+            }
+
+            private void translateText() throws IOException {
+                // Dịch văn bản mới từ sourceTextArea
+                String translatedText = "";
+                if (Objects.equals(sourceLabel.getText(), "English")) {
+                    translatedText = API.googleTranslate("en", "vi", sourceTextArea.getText());
+                } else if (Objects.equals(sourceLabel.getText(), "Vietnamese")) {
+                    translatedText = API.googleTranslate("vi", "en", sourceTextArea.getText());
+                }
+                // Cập nhật văn bản của outputTextArea với kết quả dịch
+                outputTextArea.setText(translatedText);
+            }
+        });
+
+        sourcePanel.add(sourceLabel, BorderLayout.NORTH);
+        sourcePanel.add(new JScrollPane(sourceTextArea), BorderLayout.CENTER);
+
 
         // Swap button in the center
         JButton swapButton = new JButton(new ImageIcon("src/resource/media/resource/swap.png"));
@@ -449,6 +497,7 @@ public class DictionaryGUI extends JFrame {
             sourceLabel.setText(outputLabel.getText());
             outputLabel.setText(tempLabel);
         });
+
 
         // GridBag constraints for source panel
         gbc.gridx = 0;
