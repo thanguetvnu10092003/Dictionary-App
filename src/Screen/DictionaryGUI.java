@@ -10,6 +10,8 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.*;
 
 import java.util.*;
@@ -106,16 +108,12 @@ public class DictionaryGUI extends JFrame {
                     }
                 }
 
-                try {
-                    vietnameseFrame.setText("\n" +
-                            "\n" +
-                            "\n" +
-                            "\n" +
-                            "English to Vietnamese:\n" + "\n" +
-                            word.getSearching() + " = " + API.googleTranslate("en","vi",word.getSearching()));
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
+                vietnameseFrame.setText("\n" +
+                        "\n" +
+                        "\n" +
+                        "\n" +
+                        "English to Vietnamese:\n" + "\n" +
+                        word.getSearching() + " = " + word.getMeaning());
 
                 panel.add(vietnameseFrame);
                 panel.revalidate();
@@ -424,6 +422,7 @@ public class DictionaryGUI extends JFrame {
         translateDialog.setIconImage(image);
         GridBagConstraints gbc = new GridBagConstraints();
 
+
         // Panel for output text
         JPanel outputPanel = new JPanel(new BorderLayout());
         JLabel outputLabel = new JLabel("Vietnamese", JLabel.CENTER);
@@ -436,6 +435,8 @@ public class DictionaryGUI extends JFrame {
         outputPanel.add(outputLabel, BorderLayout.NORTH);
         outputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
 
+
+
         // Panel for source text
         JPanel sourcePanel = new JPanel(new BorderLayout());
         JLabel sourceLabel = new JLabel("English", JLabel.CENTER);
@@ -443,30 +444,17 @@ public class DictionaryGUI extends JFrame {
         sourceTextArea.setLineWrap(true);
         sourceTextArea.setWrapStyleWord(true);
         sourceTextArea.setFont(new Font("Arial", Font.PLAIN, 32)); // Set font here
-        sourceTextArea.getDocument().addDocumentListener(new DocumentListener() {
+        sourceTextArea.addKeyListener(new KeyAdapter() {
             @Override
-            public void insertUpdate(DocumentEvent e) {
-                try {
-                    translateText();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    try {
+                        translateText();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                try {
-                    translateText();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-
-            }
-
             private void translateText() throws IOException {
                 // Dịch văn bản mới từ sourceTextArea
                 String translatedText = "";
@@ -498,6 +486,22 @@ public class DictionaryGUI extends JFrame {
             outputLabel.setText(tempLabel);
         });
 
+        ImageIcon icon1 = new ImageIcon("src/resource/media/resource/speak.png");
+        JButton voiceEnglishButton = new JButton(icon1);
+        voiceEnglishButton.setSize(50,50);
+        voiceEnglishButton.setBounds(350,390,50,50);
+        voiceEnglishButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    Voice.speakWord(outputTextArea.getText());
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
+        outputTextArea.add(voiceEnglishButton);
 
         // GridBag constraints for source panel
         gbc.gridx = 0;
