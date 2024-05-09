@@ -55,7 +55,7 @@ Cửa sổ này có nút "Swap" ở giữa màn hình để người dùng có t
 ![screen](picture/3button.png)\
 3 nút trên lần lượt là "History", "Import File", "Export File"
 + Nút "History" sẽ hiện ra tất cả các từ đã click vào xem nghĩa.
-+ Nút "Import File sẽ cho người dùng chọn một file text bất kì trên máy tính để import vào từ điển.
++ Nút "Import File" sẽ cho người dùng chọn một file text bất kì trên máy tính để import vào từ điển.
 + Nút "Export File" sẽ giúp người dùng xuất ra một file text với tên và đường dẫn tự chọn, file text này bao gồm tất cả các từ trong từ điển và nghĩa của nó, ngăn cách nhau bởi dấu "tab".
   
 ## Game
@@ -68,7 +68,7 @@ Sau khi nhấn vào nút "Start", giao diện câu hỏi sẽ hiện lên.\
 ![screen](picture/quizgui.png)\
 Người dùng có thể sẽ chọn đúng hoặc chọn sai. Nếu đáp án đúng thì sẽ có màu xanh còn đáp án sai thì sẽ có màu đỏ
 ![screen](picture/answergui.png)\
-Ngoài ra, người dùng có thể tạo câu hỏi cho riêng mình bằng nút "Create a Question".\
+Ngoài ra, người dùng có thể tạo câu hỏi cho riêng mình bằng nút "Create a Question" và có thể chọn đáp án đúng cho câu hỏi đó.\
 Sau đó sẽ có giao diện cho người dùng thao tác.\
 ![screen](picture/createquestiongui.png)\
 
