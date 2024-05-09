@@ -2,7 +2,7 @@
 
 Đây là project phục vụ cho môn học Lập trình hướng đối tượng.
 
-## Contributor
+## Contributors
 21021441 - Lê Toàn Thắng\
 21020145 - Phạm Tường Minh
 
