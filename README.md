@@ -51,7 +51,14 @@ Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùn
 ![screen](picture/translate.png)\
 Cửa sổ này có nút "Swap" ở giữa màn hình để người dùng có thể linh hoạt chuyển đổi giữa dịch Việt-Anh và Anh-Việt.
 
-### Game
+### History, Import File, Export File
+![screen](picture/3button.png)\
+3 nút trên lần lượt là "History", "Import File", "Export File"\
++ Nút "History" sẽ hiện ra tất cả các từ đã click vào xem nghĩa.\
++ Nút "Import File sẽ cho người dùng chọn một file text bất kì trên máy tính để import vào từ điển.\
++ Nút "Export File" sẽ giúp người dùng xuất ra một file text với tên và đường dẫn tự chọn, file text này bao gồm tất cả các từ trong từ điển và nghĩa của nó, ngăn cách nhau bởi dấu "tab".\
+  
+## Game
 ![Edit](picture/gamebutton.png)\
 Đây là nút cho phép người dùng chơi game đoán từ.\
 Sau khi nhấn vào nút, giao diện bắt đầu sẽ hiện lên\
