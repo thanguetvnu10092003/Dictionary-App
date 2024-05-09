@@ -21,6 +21,6 @@ Ngay dưới nghĩa của từ sẽ có nút Favourite và nút Voice
 Trên đây là hình ảnh tất cả các chức năng của từ điển.
 ### Add
 ![Add](picture/addbutton.png)\
-Đây là nút cho phép người dùng thêm 1 từ tiếng anh và nghĩa của nó vào từ điển.
+Đây là nút cho phép người dùng thêm 1 từ tiếng anh và nghĩa của nó vào từ điển.\
 Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùng thao tác.
 ![screen](picture/add.png)\
