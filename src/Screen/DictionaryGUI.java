@@ -4,8 +4,6 @@ import base.*;
 import constants.CommonConstants;
 import java.util.concurrent.*;
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -40,13 +38,15 @@ public class DictionaryGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close
         setResizable(false);
         setVisible(true);
+        Image image = new ImageIcon("src/resource/media/normal/viet-eng.png").getImage();
+        setIconImage(image);
         favoriteWords = new ArrayList<>();
         updateWordToList(DictionaryManagement.oldWord);
         readFavoriteWordsFromFile();
     }
 
 
-    public void updateWordToList(ArrayList<Word> words) {
+    private void updateWordToList(ArrayList<Word> words) {
         wordListPanel.removeAll();
         int i = 0;
         for (Word word : words) {
@@ -57,7 +57,7 @@ public class DictionaryGUI extends JFrame {
         wordListPanel.repaint();
     }
 
-    public void displayComponent(Word word,JPanel panel,int x){
+    private void displayComponent(Word word,JPanel panel,int x){
         panel.setLayout(null);
 
         JButton ENMeaning = new JButton(word.getSearching());
@@ -144,7 +144,7 @@ public class DictionaryGUI extends JFrame {
         DictionaryManagement.insertFromFile();
 
         // import from MySQL database
-        MyJDBC.importDatabase();
+        // MyJDBC.importDatabase();
 
         ArrayList<Word> words = DictionaryManagement.oldWord;
 
@@ -275,7 +275,7 @@ public class DictionaryGUI extends JFrame {
                         String fileName = selectedFile.getName();
 
                         if (fileName.isEmpty()) {
-                            JOptionPane.showConfirmDialog(this, "Please enter a file name.", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showConfirmDialog(this, "Please enter a file name.", "Error", JOptionPane.YES_NO_OPTION);
                             break;
                         }
 
@@ -293,7 +293,13 @@ public class DictionaryGUI extends JFrame {
     }
 
     private void resetState() {
-        JPanel resultPanel = new JPanel();
+        JPanel resultPanel = new JPanel() {
+            @Override
+            public Dimension getPreferredSize() {
+                int height = super.getComponentCount() * 30; // Assuming each word has a height of 30 pixels
+                return new Dimension(1000,height);
+            }
+        };
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
         resultPanel.setBackground(Color.cyan);
         int count = 0;
@@ -353,9 +359,10 @@ public class DictionaryGUI extends JFrame {
                 int response = JOptionPane.showConfirmDialog(removeDialog,
                         "Do you really want to remove the word: " + wordToRemove + "?", "Confirm Remove", JOptionPane.YES_NO_OPTION);
                 if (response == JOptionPane.YES_OPTION) {
-                    DictionaryManagement.oldWord.removeIf(word -> word.getSearching().equalsIgnoreCase(wordToRemove));
+                    DictionaryManagement.removeWord(wordToRemove);
                     JOptionPane.showMessageDialog(removeDialog, "Word removed successfully!");
                     updateWordToList(DictionaryManagement.oldWord);
+                    DictionaryManagement.removeInFile(wordToRemove);
                     MyJDBC.removeWordFromDatabase(wordToRemove);
                 }
             } else {
@@ -430,6 +437,9 @@ public class DictionaryGUI extends JFrame {
                         "Are you sure you want to change the word: " + originalWord + " to:\nEnglish: " + newEnglishMeaning + "\nVietnamese: " + newVietnameseMeaning + "?",
                         "Confirm Edit", JOptionPane.YES_NO_OPTION);
                 if (response == JOptionPane.YES_OPTION) {
+                    DictionaryManagement.alterWord(originalWord, newEnglishMeaning, newVietnameseMeaning);
+                    updateWordToList(DictionaryManagement.oldWord);
+                    MyJDBC.modifyWordInDatabase(originalWord, newEnglishMeaning, newVietnameseMeaning);
                     JOptionPane.showMessageDialog(editDialog, "Word updated successfully!");
                 }
             }
@@ -472,13 +482,14 @@ public class DictionaryGUI extends JFrame {
             String vietnameseMeaning = vietnameseTextField.getText();
             if (!englishWord.isEmpty() && !vietnameseMeaning.isEmpty()) {
                 // Set the input path before adding the word
-                DictionaryManagement.setInputPath("src/base/default.txt");
+                DictionaryManagement.setInputPath("src/base/test.txt");
                 DictionaryManagement.addWord(englishWord, vietnameseMeaning);
                 // Assuming a method to save directly to the file
-                DictionaryManagement.exportToFile("src/base/1.txt");
+
                 JOptionPane.showMessageDialog(editDialog, "Word added successfully!");
                 updateWordToList(DictionaryManagement.oldWord);
                 MyJDBC.insertWordToDatabase(englishWord, vietnameseMeaning);
+                MyJDBC.removeDuplicatesFromDatabase();
             } else {
                 JOptionPane.showMessageDialog(editDialog, "Please fill both fields!", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -508,7 +519,7 @@ public class DictionaryGUI extends JFrame {
         outputTextArea.setWrapStyleWord(true);
         outputTextArea.setEditable(false);
         outputTextArea.setBackground(Color.LIGHT_GRAY);
-        outputTextArea.setFont(new Font("Arial", Font.PLAIN, 32));
+        outputTextArea.setFont(new Font("Arial", Font.PLAIN, 25));
         outputPanel.add(outputLabel, BorderLayout.NORTH);
         outputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
 
@@ -518,7 +529,7 @@ public class DictionaryGUI extends JFrame {
         JTextArea sourceTextArea = new JTextArea();
         sourceTextArea.setLineWrap(true);
         sourceTextArea.setWrapStyleWord(true);
-        sourceTextArea.setFont(new Font("Arial", Font.PLAIN, 32));
+        sourceTextArea.setFont(new Font("Arial", Font.PLAIN, 25));
         sourceTextArea.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 if (scheduledFuture != null && !scheduledFuture.isDone()) {
@@ -601,7 +612,15 @@ public class DictionaryGUI extends JFrame {
 
 
     private void searchAndUpdateResults(String query) {
-        JPanel resultPanel = new JPanel();
+        
+        JPanel resultPanel = new JPanel() {
+            @Override
+            public Dimension getPreferredSize() {
+                int height = super.getComponentCount() * 30; // Assuming each word has a height of 30 pixels
+                return new Dimension(1000,height);
+            }
+        };
+
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
         resultPanel.setBackground(Color.cyan);
         int count = 0;
@@ -699,7 +718,14 @@ public class DictionaryGUI extends JFrame {
     }
 
     private void displayHistoryWords() {
-        JPanel historyPanel = new JPanel();
+        JPanel historyPanel = new JPanel() {
+            @Override
+            public Dimension getPreferredSize() {
+                int height = super.getComponentCount() * 30; // Assuming each word has a height of 30 pixels
+                return new Dimension(1000,height);
+            }
+        };
+
         historyPanel.setLayout(new BoxLayout(historyPanel, BoxLayout.Y_AXIS));
         historyPanel.setBackground(Color.cyan);
 
@@ -763,10 +789,13 @@ public class DictionaryGUI extends JFrame {
 
                     // Tạo một đối tượng Word mới và thêm vào danh sách từ điển
                     Word word = new Word(searching, meaning);
+                    MyJDBC.insertWordToDatabase(searching, meaning);
                     DictionaryManagement.oldWord.add(word);
                 }
             }
-
+            DictionaryManagement.insertFromFile();
+            DictionaryManagement.removeDuplicates();
+            MyJDBC.removeDuplicatesFromDatabase();
             // Cập nhật giao diện người dùng để hiển thị danh sách từ điển mới
             updateWordToList(DictionaryManagement.oldWord);
         } catch (IOException e) {
@@ -783,5 +812,6 @@ public class DictionaryGUI extends JFrame {
             importFromFile(selectedFile.getAbsolutePath());
         }
     }
+
 
 }

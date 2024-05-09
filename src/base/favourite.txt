@@ -1,3 +1,0 @@
-book	quyển sách
-bathroom	phòng tắm
-bag	bao lô

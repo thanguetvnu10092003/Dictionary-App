@@ -24,7 +24,8 @@ public class CreateQuestionScreenGui extends JFrame {
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         getContentPane().setBackground(CommonConstants.LIGHT_BLUE.darker());
-
+        Image image = new ImageIcon("src/resource/media/normal/edit.png").getImage();
+        setIconImage(image);
         answerRatioButton = new JRadioButton[4];
         answerTextFields = new JTextField[4];
         buttonGroup = new ButtonGroup();

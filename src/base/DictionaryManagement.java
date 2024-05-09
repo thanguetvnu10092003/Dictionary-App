@@ -1,10 +1,11 @@
 package base;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 
 public class DictionaryManagement extends Dictionary{
-    private static String INPUT_PATH = "src/base/default.txt";
+    private static String INPUT_PATH = "src/base/test.txt";
     private static String PREV_INPUT_PATH = "";
     private static String OUTPUT_PATH = "";
     public static String getInputPath() {
@@ -102,7 +103,7 @@ public class DictionaryManagement extends Dictionary{
 
     public static void exportToFile(String OUTPUT_PATH) {
         try {
-            OutputStream outputStream = new FileOutputStream(new File(OUTPUT_PATH));
+            OutputStream outputStream = Files.newOutputStream(new File(OUTPUT_PATH).toPath());
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
             BufferedWriter writer = new BufferedWriter(outputStreamWriter);
             for (Word word : oldWord) {
@@ -206,13 +207,15 @@ public class DictionaryManagement extends Dictionary{
     /**
      * change a word's meaning.
      */
-    public static void alterWord(String altered_word, String altered_meaning) {
-        altered_word = altered_word.toLowerCase();
-        altered_meaning = altered_meaning.toLowerCase();
+    public static void alterWord(String originalWord ,String alteredWord, String alteredMeaning) {
+        alteredWord = alteredWord.toLowerCase();
+        alteredMeaning = alteredMeaning.toLowerCase();
+        originalWord = originalWord.toLowerCase();
         int pos = -1;
-        pos = Collections.binarySearch(oldWord, new Word(altered_word, null));
+        pos = Collections.binarySearch(oldWord, new Word(originalWord, null));
         if (pos >= 0) {
-            oldWord.get(pos).setMeaning(altered_meaning);
+            oldWord.get(pos).setMeaning(alteredMeaning);
+            oldWord.get(pos).setSearching(alteredWord);
         } else {
             System.out.println("Can't find the word you want to change");
         }
@@ -259,5 +262,45 @@ public class DictionaryManagement extends Dictionary{
         else
             return API.googleTranslate("", "vi",word);
 
+    }
+
+    public static void removeInFile(String word) {
+        String filePath = "src/base/test.txt";
+        String wordToDelete = word;
+        boolean wordDeleted = false;
+
+        // Đọc dữ liệu từ tệp vào bộ nhớ
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+                String[] parts = line.split("\t"); // Phân tách từ và nghĩa bằng dấu tab
+                if (parts.length >= 2 && parts[0].equals(wordToDelete)) {
+                    lines.remove(line);
+                    wordDeleted = true;
+                    break; // Nếu chỉ xóa một từ, hãy thoát khỏi vòng lặp ở đây
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (!wordDeleted) {
+            System.out.println("Không tìm thấy từ cần xóa trong tệp.");
+            return;
+        }
+
+        // Ghi dữ liệu đã được chỉnh sửa trở lại tệp văn bản
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (String line : lines) {
+                writer.write(line);
+                writer.newLine();
+            }
+            System.out.println("Từ đã được xóa thành công khỏi tệp.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

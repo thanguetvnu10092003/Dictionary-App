@@ -30,12 +30,13 @@ public class MyJDBC {
     public static void insertWordToDatabase(String englishWord, String vietnameseMeaning) {
         try (Connection conn = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD)) {
             // Tạo một câu lệnh SQL để chèn dữ liệu
-            String sql = "INSERT INTO dictionary (word, meaning) VALUES (?, ?)";
+            String sql = "INSERT INTO dictionary (id, word, meaning) VALUES (?, ?, ?)";
 
             // Tạo một PreparedStatement để thêm dữ liệu vào câu lệnh SQL
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, englishWord);
-                pstmt.setString(2, vietnameseMeaning);
+                pstmt.setInt(1, oldWord.size());
+                pstmt.setString(2, englishWord);
+                pstmt.setString(3, vietnameseMeaning);
 
                 // Thực thi câu lệnh SQL
                 pstmt.executeUpdate();
@@ -60,5 +61,71 @@ public class MyJDBC {
             e.printStackTrace();
         }
     }
+
+    public static void removeDuplicatesFromDatabase() {
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD)) {
+            // Tạo một câu lệnh SQL để lấy ra tất cả các từ trùng lặp
+            String sql = "SELECT word FROM dictionary GROUP BY word HAVING COUNT(*) > 1";
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                ResultSet resultSet = pstmt.executeQuery();
+
+                while (resultSet.next()) {
+                    String duplicateWord = resultSet.getString("word");
+                    // Xóa tất cả các bản sao trừ bản gốc đầu tiên
+                    String deleteSql = "DELETE FROM dictionary WHERE word = ? AND id NOT IN (SELECT MIN(id) FROM (SELECT id FROM dictionary WHERE word = ?) AS t)";
+                    try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                        deleteStmt.setString(1, duplicateWord);
+                        deleteStmt.setString(2, duplicateWord);
+                        deleteStmt.executeUpdate();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void modifyWordInDatabase(String originalWord, String alteredWord, String alteredMeaning) {
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD)) {
+            // Tạo một câu lệnh SQL để tìm từ cần thay đổi
+            String selectSql = "SELECT * FROM dictionary WHERE word = ?";
+
+            try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                selectStmt.setString(1, originalWord);
+
+                // Thực thi câu lệnh SQL để tìm từ cần thay đổi
+                ResultSet resultSet = selectStmt.executeQuery();
+
+                if (resultSet.next()) {
+                    // Nếu tìm thấy từ cần thay đổi, lấy id của từ đó
+                    int wordId = resultSet.getInt("id");
+
+                    // Tạo một câu lệnh SQL để cập nhật từ và nghĩa mới
+                    String updateSql = "UPDATE dictionary SET word = ?, meaning = ? WHERE id = ?";
+
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setString(1, alteredWord);
+                        updateStmt.setString(2, alteredMeaning);
+                        updateStmt.setInt(3, wordId);
+
+                        // Thực thi câu lệnh SQL để cập nhật từ và nghĩa mới
+                        int rowsAffected = updateStmt.executeUpdate();
+
+                        if (rowsAffected > 0) {
+                            System.out.println("Từ đã được sửa đổi thành công.");
+                        } else {
+                            System.out.println("Không có từ nào được sửa đổi trong cơ sở dữ liệu.");
+                        }
+                    }
+                } else {
+                    System.out.println("Không tìm thấy từ cần sửa đổi trong cơ sở dữ liệu.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
 

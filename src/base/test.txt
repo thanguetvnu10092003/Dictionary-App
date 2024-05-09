@@ -1,8 +1,14 @@
+adjust	điều chỉnh
+after	sau
+aggressive	hung dữ
+agriculture	nông nghiệp
 ambition	tham vọng
 angle	góc độ
 angry	tức giận
 apple	quả táo
 application	ứng dụng
+assessment	đánh giá
+automatic	tự động
 bag	bao lô
 ball	quả bóng
 bathroom	phòng tắm
@@ -18,17 +24,22 @@ comprehensive	kiến thức rộng
 cooker	nồi cơm điện
 cookies	bánh quy
 crayon	bút sáp màu
+get	lấy
 glasses	mắt kính
 grass	cỏ
 hello	xin chào
+menu	thực đơn
 painting	bức tranh
 paper	tờ giấy
 perfume	nước hoa
 relentless	không ngừng
 remedy	biện pháp cứu chữa
+reply	trả lời
+room	phòng
 selfish	ích kỷ
 shirt	áo sơ mi
 stupid	ngu ngốc
 table	cái bàn
+text	văn bản
 useless	vô dụng
 wallet	cái ví

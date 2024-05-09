@@ -55,7 +55,6 @@ public class DictionaryCommandline extends Dictionary{
                     String altered_word = sc3.nextLine().toLowerCase();
                     System.out.println("New meaning:");
                     String altered_meaning = sc3.nextLine();
-                    DictionaryManagement.alterWord(altered_word, altered_meaning);
                     break;
                 case 4:
                     showAllWords();

@@ -34,6 +34,8 @@ public class QuizScreenGui extends JFrame implements ActionListener {
 
     public QuizScreenGui(Category category, int numberOfQuestion) {
         super("Learning Game");
+        Image image = new ImageIcon("src/resource/media/resource/game.png").getImage();
+        setIconImage(image);
         setSize(400, 565);
         setLayout(null);
         setLocationRelativeTo(null);

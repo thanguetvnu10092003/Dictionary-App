@@ -15,7 +15,8 @@ public class TitleScreenGui extends JFrame {
     private JTextField numOfQuestionsTextField;
     public TitleScreenGui() {
         super("Title Screen");
-
+        Image image = new ImageIcon("src/resource/media/resource/game.png").getImage();
+        setIconImage(image);
         setSize(400,565);
 
         // set the layout manager of the frame to null, allowing manual positioning of components
