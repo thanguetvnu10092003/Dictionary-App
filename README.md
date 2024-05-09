@@ -55,3 +55,6 @@ Cửa sổ này có nút Swap ở giữa màn hình để người dùng có th�
 Đây là nút cho phép người dùng chơi game đoán từ.\
 Sau khi nhấn vào nút, giao diện bắt đầu sẽ hiện lên\
 ![screen](picture/titlegui.png)\
+Người dùng có thể chọn loại câu ở mục Choose a category và số lượng câu hỏi ở mục Number of question.\
+Sau khi nhấn vào nút Start, giao diện câu hỏi sẽ hiện lên.\
+![screen](picture/quizgui.png)
