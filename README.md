@@ -22,7 +22,7 @@ Trên đây là hình ảnh tất cả các chức năng của từ điển.
 ### Search
 ![Edit](picture/searchbutton.png)\
 Đây là nút cho phép người dùng tìm kiếm từ theo cú pháp.\
-Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùng thao tác.\
+Sau khi nhấn vào nút, các từ có cú pháp tương đồng sẽ xuất hiện.\
 ![screen](picture/search.png)
 
 ### Add
