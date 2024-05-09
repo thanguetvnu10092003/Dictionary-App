@@ -50,3 +50,8 @@ Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùn
 ![screen](picture/translate.png)\
 Cửa sổ này có nút Swap ở giữa màn hình để người dùng có thể linh hoạt chuyển đổi giữa dịch Việt-Anh và Anh-Việt.
 
+### Game
+![Edit](picture/gamebutton.png)\
+Đây là nút cho phép người dùng chơi game đoán từ.\
+Sau khi nhấn vào nút, giao diện bắt đầu sẽ hiện lên\
+![screen](picture/titlegui.png)\
