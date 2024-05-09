@@ -8,3 +8,7 @@
 
 ## Giao diện cơ bản của từ điển
 ![Giao diện của từ điển](picture/menu.png)
+Từ điển có các chức năng như nhập file, xuất file, thêm từ,...
+
+## Hiển thị nghĩa của từ
+![Giao diện](picture/1.png)
