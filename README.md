@@ -29,7 +29,7 @@ Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùn
 ![Add](picture/addbutton.png)\
 Đây là nút cho phép người dùng thêm 1 từ tiếng anh và nghĩa của nó vào từ điển.\
 Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùng thao tác.\
-![screen](picture/add.png)\
+![screen](picture/add.png)
 
 
 ### Edit
@@ -70,7 +70,7 @@ Người dùng có thể sẽ chọn đúng hoặc chọn sai. Nếu đáp án �
 ![screen](picture/answergui.png)\
 Ngoài ra, người dùng có thể tạo câu hỏi cho riêng mình bằng nút "Create a Question" và có thể chọn đáp án đúng cho câu hỏi đó.\
 Sau đó sẽ có giao diện cho người dùng thao tác.\
-![screen](picture/createquestiongui.png)\
+![screen](picture/createquestiongui.png)
 
 ## Sơ đồ khối của toàn bộ project
 ![diagram](picture/a.png)
