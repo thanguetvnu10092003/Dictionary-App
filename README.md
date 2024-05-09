@@ -17,5 +17,5 @@ Ngay dưới nghĩa của từ sẽ có nút Favourite và nút Voice
 + Nút Voice sẽ giúp phát âm từ Tiếng Anh.
 
 ## Các chức năng
-![Chức năng](picture/fuction.png)\
+![Chức năng](picture/function.png)\
 Trên đây là hình ảnh tất cả các chức năng của từ điển.
