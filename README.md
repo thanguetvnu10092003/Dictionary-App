@@ -7,7 +7,7 @@
 2102     - Phạm Tường Minh
 
 ## Giao diện cơ bản của từ điển
-![Giao diện của từ điển](picture/menu.png){width=300px}
+![Giao diện của từ điển](picture/menu.png){width=50%}\
 Từ điển có các chức năng như nhập file, xuất file, thêm từ,...
 
 ## Hiển thị nghĩa của từ
