@@ -18,4 +18,7 @@ Ngay dưới nghĩa của từ sẽ có nút Favourite và nút Voice
 
 ## Các chức năng
 ![Chức năng](picture/function.png)\
-Trên đây là hình ảnh tất cả các chức năng của từ điển.
+Trên đây là hình ảnh tất cả các chức năng của từ điển.\
+### Add
+![Add](picture/addbutton.png)\
+Đây là nút cho phép người dùng thêm 1 từ tiếng anh và nghĩa của nó vào từ điển.\
