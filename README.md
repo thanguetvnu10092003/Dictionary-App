@@ -19,6 +19,12 @@ Ngay dưới nghĩa của từ sẽ có nút Favourite và nút Voice
 ## Các chức năng
 ![Chức năng](picture/function.png)\
 Trên đây là hình ảnh tất cả các chức năng của từ điển.
+### Search
+![Edit](picture/searchbutton.png)\
+Đây là nút cho phép người dùng tìm kiếm từ theo cú pháp.\
+Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùng thao tác.\
+![screen](picture/search.png)
+
 ### Add
 ![Add](picture/addbutton.png)\
 Đây là nút cho phép người dùng thêm 1 từ tiếng anh và nghĩa của nó vào từ điển.\
