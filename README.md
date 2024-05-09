@@ -30,3 +30,15 @@ Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùn
 Đây là nút cho phép người dùng sửa đổi 1 từ trong từ điển tùy ý.\
 Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùng thao tác.\
 ![screen](picture/edit.png)
+
+### Remove
+![Edit](picture/removebutton.png)\
+Đây là nút cho phép người dùng xóa 1 từ trong từ điển tùy ý.\
+Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùng thao tác.\
+![screen](picture/remove.png)
+
+### Translate
+![Edit](picture/translatebutton.png)\
+Đây là nút cho phép người dùng thực hiện dịch một từ trong một cửa sổ tương đồng với Google Translate.\
+Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùng thao tác.\
+![screen](picture/translate.png)
