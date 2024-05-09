@@ -63,4 +63,7 @@ Người dùng có thể sẽ chọn đúng hoặc chọn sai. Nếu đáp án �
 ![screen](picture/answergui.png)\
 Ngoài ra, người dùng có thể tạo câu hỏi cho riêng mình bằng nút "Create a Question".\
 Sau đó sẽ có giao diện cho người dùng thao tác.\
-![screen](picture/createquestiongui.png)
+![screen](picture/createquestiongui.png)\
+
+## Sơ đồ khối của toàn bộ project
+![diagram](picture/a.png)
