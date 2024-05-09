@@ -6,3 +6,5 @@
 21021441 - Lê Toàn Thắng\
 2102     - Phạm Tường Minh
 
+## Giao diện cơ bản của từ điển
+![Giao diện của từ điển][
