@@ -41,4 +41,6 @@ Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùn
 ![Edit](picture/translatebutton.png)\
 Đây là nút cho phép người dùng thực hiện dịch một từ trong một cửa sổ tương đồng với Google Translate.\
 Sau khi nhấn vào nút, cửa sổ này sẽ hiện ra cho phép người dùng thao tác.\
-![screen](picture/translate.png)
+![screen](picture/translate.png)\
+Cửa sổ này có nút Swap ở giữa màn hình để người dùng có thể linh hoạt chuyển đổi giữa dịch Việt-Anh và Anh-Việt.
+
