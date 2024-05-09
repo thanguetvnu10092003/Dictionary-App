@@ -7,4 +7,4 @@
 2102     - Phạm Tường Minh
 
 ## Giao diện cơ bản của từ điển
-![Giao diện của từ điển][picture/menu.png]
+![Giao diện của từ điển](menu.png)
